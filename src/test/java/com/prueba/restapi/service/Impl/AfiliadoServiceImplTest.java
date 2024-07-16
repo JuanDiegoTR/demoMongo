@@ -8,6 +8,7 @@ import com.prueba.restapi.entity.AfiliadoEntity;
 import com.prueba.restapi.repository.AfilPersonaNaturalRepository;
 import com.prueba.restapi.repository.AfilPersonaRepository;
 import com.prueba.restapi.repository.AfiliadoRepository;
+import com.prueba.restapi.util.MensajeError;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,6 +46,16 @@ class AfiliadoServiceImplTest {
     }
 
     @Test
+    void findByNumIdentAndTipoIdentException() {
+        Mockito.when(afiliadoRepository.findByTipoIdentificacionAndNumeroIdentificacion(TIPO_DOC, NUM_DOC))
+                .thenReturn(Optional.empty());
+        Exception exception = Assertions.assertThrows(Exception.class, () -> {
+            afiliadoService.findByNumIdentAndTipoIdent(TIPO_DOC, NUM_DOC);
+        });
+        Assertions.assertEquals(MensajeError.ERROR_CONSULTA_AFILIADO, exception.getMessage());
+    }
+
+    @Test
     void findPersonaByNumIdentAndTipoIdent() throws Exception {
         AfilPersonaEntity afilPersona = new AfilPersonaEntity();
         afilPersona.setIdPersona("1");
@@ -60,6 +71,34 @@ class AfiliadoServiceImplTest {
 
         AfilPersonaDTO resp = afiliadoService.findPersonaByNumIdentAndTipoIdent(TIPO_DOC, NUM_DOC);
         Assertions.assertNotNull(resp);
+    }
+
+    @Test
+    void findPersonaByNumIdentAndTipoIdentExcepUno() {
+        Mockito.when(afilPersonaRepository.findByTipoIdentificacionAndNumeroIdentificacion(TIPO_DOC, NUM_DOC))
+                .thenReturn(Optional.empty());
+        Exception exception = Assertions.assertThrows(Exception.class, () -> {
+            afiliadoService.findPersonaByNumIdentAndTipoIdent(TIPO_DOC, NUM_DOC);
+        });
+        Assertions.assertEquals(MensajeError.ERROR_CONSULTA_AFILIADO, exception.getMessage());
+    }
+
+    @Test
+    void findPersonaByNumIdentAndTipoIdentExcepDos() {
+        AfilPersonaEntity afilPersona = new AfilPersonaEntity();
+        afilPersona.setIdPersona("1");
+
+        Mockito.when(afilPersonaRepository
+                        .findByTipoIdentificacionAndNumeroIdentificacion(
+                                Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Optional.of(afilPersona));
+
+        Mockito.when(afilPersonaNaturalRepository.findByIdPersona(Mockito.anyString()))
+                .thenReturn(Optional.empty());
+        Exception exception = Assertions.assertThrows(Exception.class, () -> {
+            afiliadoService.findPersonaByNumIdentAndTipoIdent(TIPO_DOC, NUM_DOC);
+        });
+        Assertions.assertEquals(MensajeError.ERROR_CONSULTA_AFILIADO, exception.getMessage());
     }
 
 }
