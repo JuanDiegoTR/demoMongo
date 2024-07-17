@@ -2,6 +2,7 @@ package com.prueba.restapi.service;
 
 import com.prueba.restapi.dto.AfilPersonaDTO;
 import com.prueba.restapi.dto.AfiliadoDTO;
+import org.springframework.http.ResponseEntity;
 
 public interface AfiliadoService {
 
@@ -13,7 +14,7 @@ public interface AfiliadoService {
      * @return informacion del usuario
      * @throws Exception error
      */
-    AfiliadoDTO findByNumIdentAndTipoIdent(String tipoIdentificacion, String numeroIdentificacion) throws Exception;
+    ResponseEntity findByNumIdentAndTipoIdent(String tipoIdentificacion, String numeroIdentificacion) throws Exception;
 
     /**
      * Metodo que consulta por tipo y numero de identificacion
@@ -23,6 +24,6 @@ public interface AfiliadoService {
      * @return informacion del usuario
      * @throws Exception error
      */
-    AfilPersonaDTO findPersonaByNumIdentAndTipoIdent(String tipoIdentificacion, String numeroIdentificacion) throws Exception;
+    ResponseEntity findPersonaByNumIdentAndTipoIdent(String tipoIdentificacion, String numeroIdentificacion) throws Exception;
 
 }

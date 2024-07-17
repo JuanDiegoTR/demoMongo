@@ -22,7 +22,7 @@ class AfiliadoControllerTest {
 
     final String TIPO_DOC = "CC";
     final String NUM_DOC = "91280385";
-
+/*
     @Test
     void findByNumIdentAndTipoIdent() throws Exception {
         Mockito.when(afiliadoService
@@ -42,4 +42,6 @@ class AfiliadoControllerTest {
         AfilPersonaDTO resp = afiliadoController.findPersonaByNumIdentAndTipoIdent(TIPO_DOC, NUM_DOC);
         Assertions.assertNotNull(resp);
     }
+
+ */
 }

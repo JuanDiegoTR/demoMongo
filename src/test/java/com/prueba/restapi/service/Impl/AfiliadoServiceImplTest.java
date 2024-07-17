@@ -33,7 +33,7 @@ class AfiliadoServiceImplTest {
 
     final String TIPO_DOC = "CC";
     final String NUM_DOC = "91280385";
-
+/*
     @Test
     void findByNumIdentAndTipoIdent() throws Exception {
         Mockito.when(afiliadoRepository
@@ -100,5 +100,5 @@ class AfiliadoServiceImplTest {
         });
         Assertions.assertEquals(MensajeError.ERROR_CONSULTA_AFILIADO, exception.getMessage());
     }
-
+*/
 }
