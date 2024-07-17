@@ -1,5 +1,6 @@
 package com.prueba.restapi.controller;
 
+import com.prueba.restapi.dto.AfilPersonaDTO;
 import com.prueba.restapi.dto.AfiliadoDTO;
 import com.prueba.restapi.entity.AfiliadoEntity;
 import com.prueba.restapi.service.AfiliadoService;
@@ -19,14 +20,26 @@ class AfiliadoControllerTest {
     @InjectMocks private AfiliadoController afiliadoController;
     @Mock private AfiliadoService afiliadoService;
 
+    final String TIPO_DOC = "CC";
+    final String NUM_DOC = "91280385";
+
     @Test
     void findByNumIdentAndTipoIdent() throws Exception {
-
         Mockito.when(afiliadoService
                         .findByNumIdentAndTipoIdent(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(new AfiliadoDTO());
 
-        AfiliadoDTO resp = afiliadoController.findByNumIdentAndTipoIdent("CC", "91280385");
+        AfiliadoDTO resp = afiliadoController.findByNumIdentAndTipoIdent(TIPO_DOC, NUM_DOC);
+        Assertions.assertNotNull(resp);
+    }
+
+    @Test
+    void findPersonaByNumIdentAndTipoIdent() throws Exception {
+        Mockito.when(afiliadoService
+                        .findPersonaByNumIdentAndTipoIdent(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(new AfilPersonaDTO());
+
+        AfilPersonaDTO resp = afiliadoController.findPersonaByNumIdentAndTipoIdent(TIPO_DOC, NUM_DOC);
         Assertions.assertNotNull(resp);
     }
 }
