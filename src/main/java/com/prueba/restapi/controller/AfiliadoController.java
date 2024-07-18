@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,8 +29,8 @@ public class AfiliadoController {
      * @throws Exception error
      */
     @GetMapping("task1")
-    public AfiliadoDTO findByNumIdentAndTipoIdent(@RequestHeader("tipoIdentificacion") String tipoIdentificacion,
-                                                  @RequestHeader("numeroIdentificacion") String numeroIdentificacion) throws Exception {
+    public ResponseEntity findByNumIdentAndTipoIdent(@RequestHeader("tipoIdentificacion") String tipoIdentificacion,
+                                                     @RequestHeader("numeroIdentificacion") String numeroIdentificacion) throws Exception {
         return afiliadoService.findByNumIdentAndTipoIdent(tipoIdentificacion, numeroIdentificacion);
     }
 
@@ -42,7 +43,7 @@ public class AfiliadoController {
      * @throws Exception error
      */
     @GetMapping("task2")
-    public AfilPersonaDTO findPersonaByNumIdentAndTipoIdent(@RequestParam("tipoIdentificacion")
+    public ResponseEntity findPersonaByNumIdentAndTipoIdent(@RequestParam("tipoIdentificacion")
                                                             @NotBlank(message = MensajeError.ErrorTipoIdentificaion.ERROR_NOT_BLANCK)
                                                             @Size(min = 2, max = 2, message = MensajeError.ErrorTipoIdentificaion.ERROR_SIZE)
                                                             @Pattern(regexp = "[a-zA-Z]+", message = MensajeError.ErrorTipoIdentificaion.ERROR_PATRON)

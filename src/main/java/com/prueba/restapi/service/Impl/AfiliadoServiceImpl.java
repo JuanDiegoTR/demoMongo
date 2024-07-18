@@ -2,6 +2,8 @@ package com.prueba.restapi.service.Impl;
 
 import com.prueba.restapi.dto.AfilPersonaDTO;
 import com.prueba.restapi.dto.AfiliadoDTO;
+import com.prueba.restapi.dto.ResponseDTO;
+import com.prueba.restapi.dto.StatusDTO;
 import com.prueba.restapi.entity.AfilPersonaEntity;
 import com.prueba.restapi.entity.AfilPersonaNaturalEntity;
 import com.prueba.restapi.entity.AfiliadoEntity;
@@ -9,9 +11,15 @@ import com.prueba.restapi.repository.AfilPersonaNaturalRepository;
 import com.prueba.restapi.repository.AfilPersonaRepository;
 import com.prueba.restapi.repository.AfiliadoRepository;
 import com.prueba.restapi.service.AfiliadoService;
+import com.prueba.restapi.util.Constantes;
 import com.prueba.restapi.util.MensajeError;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -22,32 +30,52 @@ public class AfiliadoServiceImpl implements AfiliadoService {
     private final AfilPersonaNaturalRepository afilPersonaNaturalRepository;
 
     @Override
-    public AfiliadoDTO findByNumIdentAndTipoIdent(String tipoIdentificacion, String numeroIdentificacion) throws Exception {
+    public ResponseEntity findByNumIdentAndTipoIdent(String tipoIdentificacion, String numeroIdentificacion) {
+        try {
+            AfiliadoEntity afiliado = afiliadoRepository
+                    .findByTipoIdentificacionAndNumeroIdentificacion(tipoIdentificacion, numeroIdentificacion)
+                    .orElseThrow(
+                            () -> new Exception(MensajeError.ERROR_CONSULTA_AFILIADO)
+                    );
 
-        AfiliadoEntity afiliado = afiliadoRepository
-                .findByTipoIdentificacionAndNumeroIdentificacion(tipoIdentificacion, numeroIdentificacion)
-                .orElseThrow(
-                        () -> new Exception(MensajeError.ERROR_CONSULTA_AFILIADO)
-                );
+            StatusDTO statusDTO = new StatusDTO();
+            statusDTO.setStatusCode(String.valueOf(HttpStatus.OK));
+            statusDTO.setStatusDescription(Constantes.MSG_EXITOSO_AFILIADO);
 
-        return mapperRespTask1(afiliado);
+            Map<String, Object> resp = new HashMap<>();
+            resp.put(Constantes.AFILIADO, mapperRespTask1(afiliado));
+
+            return ResponseEntity.ok(new ResponseDTO(statusDTO, resp));
+        } catch (Exception ex) {
+            throw new NullPointerException(ex.getMessage());
+        }
     }
 
     @Override
-    public AfilPersonaDTO findPersonaByNumIdentAndTipoIdent(String tipoIdentificacion, String numeroIdentificacion) throws Exception {
+    public ResponseEntity findPersonaByNumIdentAndTipoIdent(String tipoIdentificacion, String numeroIdentificacion) {
+        try {
+            AfilPersonaEntity afilPersona = afilPersonaRepository
+                    .findByTipoIdentificacionAndNumeroIdentificacion(tipoIdentificacion, numeroIdentificacion)
+                    .orElseThrow(
+                            () -> new Exception(MensajeError.ERROR_CONSULTA_AFILIADO)
+                    );
 
-        AfilPersonaEntity afilPersona = afilPersonaRepository
-                .findByTipoIdentificacionAndNumeroIdentificacion(tipoIdentificacion, numeroIdentificacion)
-                .orElseThrow(
-                        () -> new Exception(MensajeError.ERROR_CONSULTA_AFILIADO)
-                );
+            AfilPersonaNaturalEntity afilPersonaNatural = afilPersonaNaturalRepository.findByIdPersona(afilPersona.getIdPersona())
+                    .orElseThrow(
+                            () -> new Exception(MensajeError.ERROR_CONSULTA_AFILIADO)
+                    );
 
-        AfilPersonaNaturalEntity afilPersonaNatural = afilPersonaNaturalRepository.findByIdPersona(afilPersona.getIdPersona())
-                .orElseThrow(
-                        () -> new Exception(MensajeError.ERROR_CONSULTA_AFILIADO)
-                );
+            StatusDTO statusDTO = new StatusDTO();
+            statusDTO.setStatusCode(String.valueOf(HttpStatus.OK));
+            statusDTO.setStatusDescription(Constantes.MSG_EXITOSO_AFILIADO);
 
-        return mapperRespTask2(afilPersona, afilPersonaNatural);
+            Map<String, Object> resp = new HashMap<>();
+            resp.put(Constantes.AFILIADO, mapperRespTask2(afilPersona, afilPersonaNatural));
+
+            return ResponseEntity.ok(new ResponseDTO(statusDTO, resp));
+        } catch (Exception ex) {
+            throw new NullPointerException(ex.getMessage());
+        }
     }
 
     private AfiliadoDTO mapperRespTask1(AfiliadoEntity afiliadoEntity) {
