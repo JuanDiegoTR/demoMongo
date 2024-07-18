@@ -1,24 +1,25 @@
 package com.prueba.restapi.service.Impl;
 
-import com.prueba.restapi.dto.AfilPersonaDTO;
-import com.prueba.restapi.dto.AfiliadoDTO;
-import com.prueba.restapi.dto.ResponseDTO;
-import com.prueba.restapi.dto.StatusDTO;
+import com.prueba.restapi.dto.*;
 import com.prueba.restapi.entity.AfilPersonaEntity;
 import com.prueba.restapi.entity.AfilPersonaNaturalEntity;
 import com.prueba.restapi.entity.AfiliadoEntity;
+import com.prueba.restapi.entity.AfiliadoVigenciaEntity;
 import com.prueba.restapi.repository.AfilPersonaNaturalRepository;
 import com.prueba.restapi.repository.AfilPersonaRepository;
 import com.prueba.restapi.repository.AfiliadoRepository;
+import com.prueba.restapi.repository.AfiliadoVigenciaRepository;
 import com.prueba.restapi.service.AfiliadoService;
 import com.prueba.restapi.util.Constantes;
 import com.prueba.restapi.util.MensajeError;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -28,6 +29,8 @@ public class AfiliadoServiceImpl implements AfiliadoService {
     private final AfiliadoRepository afiliadoRepository;
     private final AfilPersonaRepository afilPersonaRepository;
     private final AfilPersonaNaturalRepository afilPersonaNaturalRepository;
+
+    private final AfiliadoVigenciaRepository afiliadoVigenciaRepository;
 
     @Override
     public ResponseEntity findByNumIdentAndTipoIdent(String tipoIdentificacion, String numeroIdentificacion) {
@@ -78,7 +81,32 @@ public class AfiliadoServiceImpl implements AfiliadoService {
         }
     }
 
-    
+    @Override
+    public ResponseEntity findAfiliadoVigenciaByNumIdentAndTipoIdent(String tipoIdentificacion, String numeroIdentificacion) {
+        try {
+
+            List<AfiliadoVigenciaEntity> afiliadoVigencia = afiliadoVigenciaRepository
+                    .findByTipoIdentificacionIdAndNumeroIdentificacion(tipoIdentificacion, numeroIdentificacion);
+            if(afiliadoVigencia.isEmpty()){
+                throw new Exception(MensajeError.ERROR_CONSULTA_AFILIADO);
+            }
+
+            ModelMapper mapper = new ModelMapper();
+            AfiliadoVigenciaDTO afiliadoResp = mapper.map(afiliadoVigencia.get(0), AfiliadoVigenciaDTO.class);
+
+            StatusDTO statusDTO = new StatusDTO();
+            statusDTO.setStatusCode(String.valueOf(HttpStatus.OK));
+            statusDTO.setStatusDescription(Constantes.MSG_EXITOSO_AFILIADO);
+
+            Map<String, Object> resp = new HashMap<>();
+            resp.put(Constantes.AFILIADO, afiliadoResp);
+
+            return ResponseEntity.ok(new ResponseDTO(statusDTO, resp));
+        } catch (Exception ex) {
+            throw new NullPointerException(ex.getMessage());
+        }
+    }
+
 
     private AfiliadoDTO mapperRespTask1(AfiliadoEntity afiliadoEntity) {
 
