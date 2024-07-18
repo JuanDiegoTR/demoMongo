@@ -78,6 +78,8 @@ public class AfiliadoServiceImpl implements AfiliadoService {
         }
     }
 
+    
+
     private AfiliadoDTO mapperRespTask1(AfiliadoEntity afiliadoEntity) {
 
         AfiliadoDTO afiliadoDTO = new AfiliadoDTO();
