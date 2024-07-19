@@ -1,14 +1,8 @@
 package com.prueba.restapi.service.Impl;
 
 import com.prueba.restapi.dto.*;
-import com.prueba.restapi.entity.AfilPersonaEntity;
-import com.prueba.restapi.entity.AfilPersonaNaturalEntity;
-import com.prueba.restapi.entity.AfiliadoEntity;
-import com.prueba.restapi.entity.AfiliadoVigenciaEntity;
-import com.prueba.restapi.repository.AfilPersonaNaturalRepository;
-import com.prueba.restapi.repository.AfilPersonaRepository;
-import com.prueba.restapi.repository.AfiliadoRepository;
-import com.prueba.restapi.repository.AfiliadoVigenciaRepository;
+import com.prueba.restapi.entity.*;
+import com.prueba.restapi.repository.*;
 import com.prueba.restapi.service.AfiliadoService;
 import com.prueba.restapi.util.Constantes;
 import com.prueba.restapi.util.MensajeError;
@@ -18,9 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +24,8 @@ public class AfiliadoServiceImpl implements AfiliadoService {
     private final AfilPersonaNaturalRepository afilPersonaNaturalRepository;
 
     private final AfiliadoVigenciaRepository afiliadoVigenciaRepository;
+    private final JurConceptoCondenaRepository jurConceptoCondenaRepository;
+    private final JurCumpliminetoCXPRepository jurCumpliminetoCXPRepository;
 
     @Override
     public ResponseEntity findByNumIdentAndTipoIdent(String tipoIdentificacion, String numeroIdentificacion) {
@@ -87,7 +82,7 @@ public class AfiliadoServiceImpl implements AfiliadoService {
 
             List<AfiliadoVigenciaEntity> afiliadoVigencia = afiliadoVigenciaRepository
                     .findByTipoIdentificacionIdAndNumeroIdentificacion(tipoIdentificacion, numeroIdentificacion);
-            if(afiliadoVigencia.isEmpty()){
+            if (afiliadoVigencia.isEmpty()) {
                 throw new Exception(MensajeError.ERROR_CONSULTA_AFILIADO);
             }
 
@@ -107,6 +102,49 @@ public class AfiliadoServiceImpl implements AfiliadoService {
         }
     }
 
+    @Override
+    public ResponseEntity findAfiliadoVigenciaByNumIdentAndTipoIdent(String demandaId) throws Exception {
+
+        List<JurCumpliminetoCXPEntity> jurCumpliminetos = jurCumpliminetoCXPRepository.findBydemandaIdAndEstado(demandaId, "APLICADO");
+
+        if (jurCumpliminetos.isEmpty()) {
+            throw new Exception(MensajeError.ERROR_CONSULTA_DEMANDA);
+        }
+        List<String> conceptoIds = jurCumpliminetos.stream()
+                .map(JurCumpliminetoCXPEntity::getConceptoId)
+                .collect(Collectors.toList());
+
+        List<JurConceptoCondenaEntity> conceptosCondena =
+                jurConceptoCondenaRepository.findByConceptoCondenaIdInAndNombreCondenaIn(conceptoIds);
+
+        List<JurComplianceDTO> jurCompliances = new ArrayList<>();
+
+        jurCumpliminetos.stream()
+                .filter(jc -> conceptosCondena.stream().anyMatch(cc -> cc.getConceptoCondenaId().equals(jc.getConceptoId())))
+                .map(jc -> {
+                    JurConceptoCondenaEntity conceptoContena = conceptosCondena.stream()
+                            .filter(cc -> cc.getConceptoCondenaId().equals(jc.getConceptoId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (conceptoContena != null) {
+                        jurCompliances.add(JurComplianceDTO.builder()
+                                .conceptoId(jc.getConceptoId())
+                                .valorPago(jc.getValorPago())
+                                .nombreCondena(conceptoContena.getNombreCondena())
+                                .build());
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        StatusDTO statusDTO = new StatusDTO();
+        statusDTO.setStatusCode(String.valueOf(HttpStatus.OK));
+        statusDTO.setStatusDescription(Constantes.MSG_EXITOSO_DEMANDA);
+
+        return ResponseEntity.ok(new ResponseDTO(statusDTO, jurCompliances));
+    }
 
     private AfiliadoDTO mapperRespTask1(AfiliadoEntity afiliadoEntity) {
 
