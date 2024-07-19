@@ -34,4 +34,14 @@ public interface AfiliadoService {
      */
     ResponseEntity findAfiliadoVigenciaByNumIdentAndTipoIdent(String tipoIdentificacion, String numeroIdentificacion);
 
+    /**
+     * Metodo que consulta por id de demanda
+     *
+     * @param demandaId id de demanda
+     * @return informacion de la demanda
+     * @throws Exception error
+     */
+    ResponseEntity findAfiliadoVigenciaByNumIdentAndTipoIdent(String demandaId) throws Exception;
+
+
 }

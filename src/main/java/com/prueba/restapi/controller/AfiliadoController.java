@@ -76,4 +76,19 @@ public class AfiliadoController {
         return afiliadoService.findAfiliadoVigenciaByNumIdentAndTipoIdent(tipoIdentificacion, numeroIdentificacion);
     }
 
+    /**
+     * Metodo que consulta por id de demanda
+     *
+     * @param demandaId id de demanda
+     * @return informacion de la demanda
+     * @throws Exception error
+     */
+    @GetMapping("task5")
+    public ResponseEntity findAfiliadoVigenciaByNumIdentAndTipoIdent(@RequestParam("demandaId")
+                                                                     @NotBlank(message = MensajeError.ErrorDemandaId.ERROR_NOT_BLANCK)
+                                                                     @Pattern(regexp = "\\d+", message = MensajeError.ErrorDemandaId.ERROR_PATRON)
+                                                                     String demandaId) throws Exception {
+        return afiliadoService.findAfiliadoVigenciaByNumIdentAndTipoIdent(demandaId);
+    }
+
 }
